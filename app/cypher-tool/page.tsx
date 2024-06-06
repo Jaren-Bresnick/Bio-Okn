@@ -2,6 +2,7 @@
 "use client";
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useState, FormEvent } from 'react';
 
 const CypherTool: NextPage = () => {
@@ -70,6 +71,12 @@ const CypherTool: NextPage = () => {
           <div className="mt-2 p-4 bg-white border rounded-md shadow-md">
             <pre className="text-left whitespace-pre-wrap">{result ? result : "No results yet..."}</pre>
           </div>
+        </div>
+
+        <div className="mt-6 w-full max-w-2xl">
+          <Link href="/neo4j-graph" legacyBehavior>
+            <a className="text-blue-600 hover:underline">Neo4j Graph</a>
+          </Link>
         </div>
       </main>
 
