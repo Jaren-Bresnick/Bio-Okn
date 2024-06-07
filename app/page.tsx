@@ -13,8 +13,8 @@ const Home: NextPage = () => {
       </Head>
 
       <main className="flex-1">
-        <section id="hero" className="bg-cover bg-center h-screen" style={{ backgroundImage: "url('/hero-bg.jpg')" }}>
-          <div className="flex items-center justify-center h-full bg-gray-800 bg-opacity-50">
+        <section id="hero" className="bg-cover bg-center h-screen" style={{ backgroundColor: "#2d2d2d" }}>
+          <div className="flex items-center justify-center h-full bg-opacity-50">
             <div className="text-center px-6">
               <h1 className="text-6xl font-bold mb-6 leading-tight text-white">
                 A Dynamically-Updated Open Knowledge Network for Health

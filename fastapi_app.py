@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from neo4j import GraphDatabase
+import logging
+from my_langchain_script import cypher_chain
 
 app = FastAPI()
 
@@ -45,6 +47,28 @@ async def get_cypher_query(request: Request):
                 nodes[m_id] = {"data": {"id": m_id, "label": m.get('NAME', 'Unknown')}}
             edges.append({"data": {"source": n_id, "target": m_id, "label": r.type}})
         return JSONResponse(content={"nodes": list(nodes.values()), "edges": edges})
+    
+    
+@app.post("/cypher-querying")
+async def get_cypher_query(request: Request):
+    try:
+        data = await request.json()
+        logging.debug(f"Received data: {data}")
+        
+        if not data or 'query' not in data:
+            logging.debug("Invalid request received.")
+            return JSONResponse(content={'error': 'Invalid request'}, status_code=400)
+
+        query = data['query']
+        logging.debug(f"Processing query: {query}")
+        
+        result = cypher_chain.invoke({"query": query})
+        logging.debug(f"Result: {result}")
+        
+        return JSONResponse(content=result)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return JSONResponse(content={'error': str(e)}, status_code=500)
 
 if __name__ == "__main__":
     import uvicorn

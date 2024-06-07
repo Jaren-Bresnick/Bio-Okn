@@ -5,13 +5,13 @@ from langchain.prompts import PromptTemplate
 
 llm = ChatOpenAI(
     openai_api_key="",
-    model_name="gpt-4"
+    model_name="gpt-4o"
 )
 
 graph = Neo4jGraph(
     url="bolt://localhost:7687",
     username="",
-    password="",
+    password=""
 )
 
 CYPHER_GENERATION_TEMPLATE = """
