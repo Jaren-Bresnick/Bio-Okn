@@ -12,7 +12,7 @@ const Navbar = () => {
           <Link href="/about" className="hover:underline">About</Link>
           <Link href="/team" className="hover:underline">Team</Link>
           <Link href="/publications" className="hover:underline">Publications</Link>
-          <Link href="/cypher-tool" className="hover:underline">Tool</Link>
+          <Link href="/cypher-graph" className="hover:underline">Tool</Link>
         </div>
       </div>
     </nav>

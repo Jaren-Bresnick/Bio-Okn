@@ -73,11 +73,6 @@ const CypherTool: NextPage = () => {
           </div>
         </div>
 
-        <div className="mt-6 w-full max-w-2xl">
-          <Link href="/neo4j-graph" legacyBehavior>
-            <a className="text-blue-600 hover:underline">Neo4j Graph</a>
-          </Link>
-        </div>
       </main>
 
     </div>

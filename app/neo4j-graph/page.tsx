@@ -158,7 +158,7 @@ const Neo4jGraph: React.FC = () => {
                     </button>
                 </div>
 
-                <div ref={cyRef} style={{ width: '1200px', height: '600px', backgroundColor: 'white' }} />
+                <div ref={cyRef} style={{ width: '600px', height: '600px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }} />
             </main>
         </div>
     );
