@@ -18,10 +18,31 @@ const teamMembers = [
     link: "https://engineering.uiowa.edu/directory/kishlay-jha"
   },
   {
-    name: "",
-    title: "",
-    school: "",
+    name: "Amir Shariatmadari ",
+    title: "PhD Student",
+    school: "University of Virginia",
+    image: "shariamadari.jpeg",
+    link: ""
+  },
+  {
+    name: "Shailesh Dahal",
+    title: "PhD Student",
+    school: "University of Iowa",
+    image: "dahal.jpeg",
+    link: ""
+  },
+  {
+    name: "Lei Gong",
+    title: "Masters Student",
+    school: "University of Virginia",
     image: "",
+    link: ""
+  },
+  {
+    name: "Jaren Bresnick",
+    title: "Undergraduate Researcher",
+    school: "University of Virginia",
+    image: "bresnick.jpeg",
     link: ""
   },
   {
@@ -38,34 +59,7 @@ const teamMembers = [
     image: "",
     link: ""
   },
-  {
-    name: "",
-    title: "",
-    school: "",
-    image: "",
-    link: ""
-  },
-  {
-    name: "",
-    title: "",
-    school: "",
-    image: "",
-    link: ""
-  },
-  {
-    name: "",
-    title: "",
-    school: "",
-    image: "",
-    link: ""
-  },
-  {
-    name: "",
-    title: "",
-    school: "",
-    image: "",
-    link: ""
-  },
+
 ];
 
 const Team: NextPage = () => {

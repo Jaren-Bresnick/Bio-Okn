@@ -10,8 +10,8 @@ llm = ChatOpenAI(
 
 graph = Neo4jGraph(
     url="bolt://localhost:7687",
-    username="",
-    password=""
+    username="neo4j",
+    password="Sdohgraph!",
 )
 
 CYPHER_GENERATION_TEMPLATE = """

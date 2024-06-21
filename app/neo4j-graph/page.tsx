@@ -118,7 +118,7 @@ const Neo4jGraph: React.FC = () => {
 
             <main className="flex flex-col items-center justify-center w-full flex-1 px-10 text-center">
                 <h1 className="text-5xl font-bold mb-4 text-blue-900">Neo4j Graph Visualization</h1>
-                <p className="text-lg text-gray-700 mb-8">Interactive visualization of a Neo4j graph database using Cytoscape.</p>
+                <p className="text-lg text-gray-700 mb-8">Interactive visualization of the Neo4j graph database</p>
                 
                 <div className="mb-8 flex space-x-4">
                     <button 
@@ -158,7 +158,7 @@ const Neo4jGraph: React.FC = () => {
                     </button>
                 </div>
 
-                <div ref={cyRef} style={{ width: '600px', height: '600px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }} />
+                <div ref={cyRef} style={{ width: '500px', height: '500px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }} />
             </main>
         </div>
     );
