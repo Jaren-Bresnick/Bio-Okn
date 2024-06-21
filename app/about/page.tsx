@@ -23,7 +23,7 @@ const About: NextPage = () => {
           <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
             <h3 className="text-3xl font-bold text-gray-800 mb-4">Integrating Biomedical and SDoH Knowledge</h3>
             <p className="text-gray-700 leading-relaxed mb-4">
-              By incorporating SDoH data, we can uncover how non-clinical factors contribute to health outcomes. This integrated approach allows for the exploration of multifaceted pathways in human health, where "nodes" represent elements like genes, proteins, environmental factors, and social conditions, and "edges" illustrate the relationships among them. This enriched knowledge graph will enable researchers to identify novel interactions and mechanisms, offering deeper insights into diseases such as suicidality and PTSD.
+              By incorporating SDoH data, we can uncover how non-clinical factors contribute to health outcomes. This integrated approach allows for the exploration of multifaceted pathways in human health, where &quot;nodes&quot; represent elements like genes, proteins, environmental factors, and social conditions, and &quot;edges&quot; illustrate the relationships among them. This enriched knowledge graph will enable researchers to identify novel interactions and mechanisms, offering deeper insights into diseases such as suicidality and PTSD.
             </p>
 
             <h3 className="text-3xl font-bold text-gray-800 mb-4">Knowledge Graph Construction</h3>
@@ -93,7 +93,6 @@ const About: NextPage = () => {
           </p>
         </div>
       </main>
-
     </div>
   );
 };
