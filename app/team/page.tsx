@@ -21,14 +21,14 @@ const teamMembers = [
     name: "Amir Shariatmadari ",
     title: "PhD Student",
     school: "University of Virginia",
-    image: "shariamadari.jpeg",
+    image: "",
     link: ""
   },
   {
     name: "Shailesh Dahal",
     title: "PhD Student",
     school: "University of Iowa",
-    image: "dahal.jpeg",
+    image: "",
     link: ""
   },
   {
@@ -39,26 +39,20 @@ const teamMembers = [
     link: ""
   },
   {
+    name: " Sneha Srinivasan",
+    title: "Masters Student",
+    school: "University of Virginia",
+    image: "",
+    link: ""
+  },
+  {
     name: "Jaren Bresnick",
     title: "Undergraduate Researcher",
     school: "University of Virginia",
-    image: "bresnick.jpeg",
-    link: ""
-  },
-  {
-    name: "",
-    title: "",
-    school: "",
     image: "",
     link: ""
   },
-  {
-    name: "",
-    title: "",
-    school: "",
-    image: "",
-    link: ""
-  },
+  
 
 ];
 

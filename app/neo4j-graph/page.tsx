@@ -122,30 +122,22 @@ const Neo4jGraph: React.FC = () => {
                 
                 <div className="mb-8 flex space-x-4">
                     <button 
-                        onClick={() => setQuery(`MATCH (e1:Entity {NAME: 'Echocardiography'})-[r]->(e2:Entity {NAME: 'Pneumonia'})
-                        WITH [e1, e2] AS nodes, collect(r) AS relationships
-                        UNWIND nodes AS n
-                        UNWIND relationships AS r
-                        MATCH (n)-[r]->(m)
-                        WHERE m IN nodes
-                        RETURN n, r, m`)}
+                        onClick={() => setQuery(`MATCH (prevention:Entity {NAME: 'Suicide prevention'})
+                                                WITH prevention
+                                                MATCH (method)-[r:METHOD_OF]->(prevention)
+                                                RETURN method AS n, r, prevention AS m`)}
                         className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
                     >
-                        Relationship between Echocardiography and Pneumonia
+                        Methods of Suicide Prevention
                     </button>
                     <button 
-                        onClick={() => setQuery(`MATCH (n)
-                        WITH n LIMIT 5
-                        WITH collect(n) AS nodes
-                        UNWIND nodes AS n
-                        UNWIND nodes AS m
-                        WITH DISTINCT n, m, nodes
-                        MATCH (n)-[r]->(m)
-                        WHERE m IN nodes
-                        RETURN DISTINCT n, r, m`)}
+                        onClick={() => setQuery(`MATCH (ptsd:Entity {NAME: 'Post-Traumatic Stress Disorder'})
+                                                WITH ptsd
+                                                MATCH (treatment)-[r:PREVENTS]->(ptsd)
+                                                RETURN treatment AS n, r, ptsd AS m`)}
                         className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
                     >
-                        Query Limit 5 Nodes
+                        Treatments of PTSD
                     </button>
                     <button 
                         onClick={() => setQuery(`MATCH (homelessness:Entity {NAME: 'Homelessness'})
