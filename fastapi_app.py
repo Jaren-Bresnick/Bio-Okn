@@ -53,23 +53,28 @@ async def get_cypher_query(request: Request):
 async def get_cypher_query(request: Request):
     try:
         data = await request.json()
-        logging.debug(f"Received data: {data}")
-        
         if not data or 'query' not in data:
             logging.debug("Invalid request received.")
             return JSONResponse(content={'error': 'Invalid request'}, status_code=400)
 
         query = data['query']
-        logging.debug(f"Processing query: {query}")
-        
         result = cypher_chain.invoke({"query": query})
-        logging.debug(f"Result: {result}")
-        
-        return JSONResponse(content=result)
+
+        intermediate_steps = result["intermediate_steps"]
+        query = None
+        for step in intermediate_steps:
+            if 'query' in step:
+                query = step['query']
+                break
+        query = query.replace("cypher\n", "").strip()
+        print(query)
+
+            
+        return JSONResponse(content={"result": result["result"]})
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return JSONResponse(content={'error': str(e)}, status_code=500)
-
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port=8000)

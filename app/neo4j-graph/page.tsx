@@ -23,7 +23,7 @@ const Neo4jGraph: React.FC = () => {
                         elements: [...data.nodes, ...data.edges],
                         style: [
                             {
-                                selector: 'node[size]', // Apply styles only if 'size' is defined
+                                selector: 'node[size]', 
                                 style: {
                                     'background-color': '#3B82F6',
                                     'label': 'data(label)',
@@ -31,22 +31,22 @@ const Neo4jGraph: React.FC = () => {
                                     'text-valign': 'center',
                                     'text-halign': 'center',
                                     'font-size': '8px',
-                                    'width': 'mapData(size, 10, 100, 30, 100)', // Dynamic size based on data
-                                    'height': 'mapData(size, 10, 100, 30, 100)', // Adjusting size dynamically
+                                    'width': 'mapData(size, 10, 100, 30, 100)', 
+                                    'height': 'mapData(size, 10, 100, 30, 100)', 
                                     'border-width': '2px',
                                     'border-color': '#1E3A8A',
                                     'text-wrap': 'wrap',
-                                    'text-max-width': '120px', // Increase max width for text wrapping
+                                    'text-max-width': '120px',
                                     'text-outline-width': '1px',
                                     'text-outline-color': '#3B82F6',
                                     'text-outline-opacity': 1,
-                                    'shape': 'ellipse', // Adjust shape to ellipse for more text space
+                                    'shape': 'ellipse', 
                                     'padding': '12px',
-                                    'z-index': 10, // Ensure nodes are below edges
+                                    'z-index': 10, 
                                 },
                             },
                             {
-                                selector: 'node[!size]', // Apply styles to nodes without 'size'
+                                selector: 'node[!size]', 
                                 style: {
                                     'background-color': '#3B82F6',
                                     'label': 'data(label)',
@@ -54,18 +54,18 @@ const Neo4jGraph: React.FC = () => {
                                     'text-valign': 'center',
                                     'text-halign': 'center',
                                     'font-size': '8px',
-                                    'width': '50px', // Default size for nodes without 'size'
+                                    'width': '50px', 
                                     'height': '50px',
                                     'border-width': '2px',
                                     'border-color': '#1E3A8A',
                                     'text-wrap': 'wrap',
-                                    'text-max-width': '120px', // Increase max width for text wrapping
+                                    'text-max-width': '120px', 
                                     'text-outline-width': '1px',
                                     'text-outline-color': '#3B82F6',
                                     'text-outline-opacity': 1,
-                                    'shape': 'ellipse', // Adjust shape to ellipse for more text space
+                                    'shape': 'ellipse', 
                                     'padding': '12px',
-                                    'z-index': 10, // Ensure nodes are below edges
+                                    'z-index': 10, 
                                 },
                             },
                             {
@@ -80,14 +80,14 @@ const Neo4jGraph: React.FC = () => {
                                     'font-size': '8px',
                                     'color': '#000000',
                                     'text-rotation': 'autorotate',
-                                    'text-background-opacity': 1, // Set background opacity
-                                    'text-background-color': '#ffffff', // Set background color to white
-                                    'text-background-shape': 'round-rectangle', // Shape of the background
+                                    'text-background-opacity': 1, 
+                                    'text-background-color': '#ffffff', 
+                                    'text-background-shape': 'round-rectangle', 
                                     'source-text-margin-y': '-15px',
                                     'source-text-margin-x': '15px',
                                     'target-text-margin-y': '15px',
                                     'target-text-margin-x': '-15px',
-                                    'z-index': 2000, // Ensure edges are above nodes
+                                    'z-index': 2000, 
                                     'edge-text-rotation': 'autorotate',
                                     'text-wrap': 'wrap',
                                     
@@ -112,7 +112,7 @@ const Neo4jGraph: React.FC = () => {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <Head>
                 <title>Neo4j Graph Visualization</title>
-                <meta name="description" content="Visualize Neo4j Graph with Cytoscape" />
+                <meta name="description" content="Visualize Neo4j Graph" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
 
@@ -122,28 +122,25 @@ const Neo4jGraph: React.FC = () => {
                 
                 <div className="mb-8 flex space-x-4">
                     <button 
-                        onClick={() => setQuery(`MATCH (prevention:Entity {NAME: 'Suicide prevention'})
-                                                WITH prevention
-                                                MATCH (method)-[r:METHOD_OF]->(prevention)
-                                                RETURN method AS n, r, prevention AS m`)}
+                        onClick={() => setQuery(`MATCH (n:Entity)-[r:METHOD_OF]->(m:Entity {NAME: 'Suicide prevention'})
+                                                RETURN n, r, m
+                                                LIMIT 3`)}
+
                         className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
                     >
                         Methods of Suicide Prevention
                     </button>
                     <button 
-                        onClick={() => setQuery(`MATCH (ptsd:Entity {NAME: 'Post-Traumatic Stress Disorder'})
-                                                WITH ptsd
-                                                MATCH (treatment)-[r:PREVENTS]->(ptsd)
-                                                RETURN treatment AS n, r, ptsd AS m`)}
+                        onClick={() => setQuery(`MATCH (n:Entity)-[r:PREVENTS]->(m:Entity {NAME: 'Post-Traumatic Stress Disorder'})
+                                                RETURN n, r, m
+                                                LIMIT 4`)}
                         className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
                     >
-                        Treatments of PTSD
+                        Preventions of PTSD
                     </button>
                     <button 
-                        onClick={() => setQuery(`MATCH (homelessness:Entity {NAME: 'Homelessness'})
-                                                WITH homelessness
-                                                MATCH (cause)-[r:CAUSES]->(homelessness)
-                                                RETURN cause AS n, r, homelessness AS m`)}
+                        onClick={() => setQuery(`MATCH (n:Entity)-[r:CAUSES]->(m:Entity {NAME: 'Homelessness'})
+                                                RETURN n, r, m`)}
                         className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105"
                     >
                         Causes of Homelessness

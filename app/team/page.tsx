@@ -33,7 +33,7 @@ const teamMembers = [
   },
   {
     name: "Lei Gong",
-    title: "Masters Student",
+    title: "PhD Student Student",
     school: "University of Virginia",
     image: "",
     link: ""
