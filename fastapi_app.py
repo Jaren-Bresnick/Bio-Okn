@@ -7,7 +7,7 @@ from my_langchain_script import cypher_chain
 
 app = FastAPI()
 
-# Allow CORS for the frontend running on localhost:3000
+# CORS setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -38,19 +38,41 @@ async def get_cypher_query(request: Request):
         for record in result:
             n = record['n']
             m = record['m']
-            r = record['r']
+            relationships = record['r']
             n_id = str(n.id)
             m_id = str(m.id)
             if n_id not in nodes:
                 nodes[n_id] = {"data": {"id": n_id, "label": n.get('NAME', 'Unknown')}}
             if m_id not in nodes:
                 nodes[m_id] = {"data": {"id": m_id, "label": m.get('NAME', 'Unknown')}}
-            edges.append({"data": {"source": n_id, "target": m_id, "label": r.type}})
+
+            if isinstance(relationships, list):  # Handle list of relationships
+                for rel in relationships:
+                    if isinstance(rel, tuple):
+                        relationship_type = rel[1]
+                        source_id = str(rel[0].id)
+                        target_id = str(rel[2].id)
+                    else:
+                        relationship_type = rel.type
+                        source_id = str(rel.start_node.id)
+                        target_id = str(rel.end_node.id)
+                    edges.append({"data": {"source": source_id, "target": target_id, "label": relationship_type}})
+            else:  # Handle single relationship
+                if isinstance(relationships, tuple):
+                    relationship_type = relationships[1]
+                    source_id = str(relationships[0].id)
+                    target_id = str(relationships[2].id)
+                else:
+                    relationship_type = relationships.type
+                    source_id = str(relationships.start_node.id)
+                    target_id = str(relationships.end_node.id)
+                edges.append({"data": {"source": source_id, "target": target_id, "label": relationship_type}})
+                
         return JSONResponse(content={"nodes": list(nodes.values()), "edges": edges})
     
     
 @app.post("/cypher-querying")
-async def get_cypher_query(request: Request):
+async def get_cypher_querying(request: Request):
     try:
         data = await request.json()
         if not data or 'query' not in data:
@@ -61,16 +83,18 @@ async def get_cypher_query(request: Request):
         result = cypher_chain.invoke({"query": query})
 
         intermediate_steps = result["intermediate_steps"]
-        query = None
+        generated_query = None
         for step in intermediate_steps:
             if 'query' in step:
-                query = step['query']
+                generated_query = step['query']
                 break
-        query = query.replace("cypher\n", "").strip()
-        print(query)
+        if generated_query:
+            generated_query = generated_query.replace("cypher\n", "").strip()
+            print(generated_query)  
 
-            
-        return JSONResponse(content={"result": result["result"]})
+            return JSONResponse(content={"result": result["result"], "query": generated_query})
+        else:
+            return JSONResponse(content={'error': 'Failed to generate Cypher query'}, status_code=500)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return JSONResponse(content={'error': str(e)}, status_code=500)

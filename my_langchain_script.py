@@ -26,7 +26,9 @@ If user asks about the relationship between two nodes:
 
 If user asks about the relationship between a node and a property:
 ex: What are the causes of Homelessness?
-
+1. Only check one direction.
+2. Make sure the direction is correct, 
+    ex: For "Methods of Suicide prevention", Suicide prevention should be the 2nd entity because the first entity is a method of it.
 
 
 Generate the query so it returns n,r,m where n and m are nodes and r is the relationship between them.
