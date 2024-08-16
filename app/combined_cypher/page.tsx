@@ -4,6 +4,7 @@ import Head from 'next/head';
 import cytoscape from 'cytoscape';
 import { FaExpand } from 'react-icons/fa';
 import { FiDownload } from 'react-icons/fi';
+import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
 
 const CypherTool: React.FC = () => {
     const cyRef = useRef<HTMLDivElement>(null);
@@ -14,8 +15,10 @@ const CypherTool: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nodes, setNodes] = useState<any[]>([]);
+    const [suggestions, setSuggestions] = useState<any[]>([]);
     const [cyInstance, setCyInstance] = useState<any>(null);
     const [modalCyInstance, setModalCyInstance] = useState<any>(null);
+    const [autocompleteEnabled, setAutocompleteEnabled] = useState(true);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -44,6 +47,62 @@ const CypherTool: React.FC = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchSuggestions = async (query: string) => {
+        const response = await fetch(`http://localhost:8000/nodes?query=${query}`);
+        if (response.ok) {
+            const data = await response.json();
+            setSuggestions(data.map((suggestion: { label: string }) => ({
+                ...suggestion,
+                label: capitalizeWords(suggestion.label)
+            })));
+        }
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setInput(value);
+        if (!autocompleteEnabled) {
+            return;
+        }
+        const words = value.split(' ');
+        const lastWord = words[words.length - 1];
+
+        if (lastWord.length > 0) {
+            fetchSuggestions(lastWord);
+        } else if (words.length > 1) {
+            const secondLastWord = words[words.length - 2];
+            fetchSuggestions(secondLastWord);
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion: string) => {
+        const words = input.split(' ');
+        const lowerCaseWords = words.map(word => word.toLowerCase());
+        const lowerCaseSuggestion = suggestion.toLowerCase();
+        const suggestionWords = suggestion.split(' ');
+
+        let startIndex = -1;
+
+        // Find the index where the suggestion should replace
+        for (let i = 0; i < lowerCaseWords.length; i++) {
+            if (lowerCaseSuggestion.startsWith(lowerCaseWords[i])) {
+                startIndex = i;
+                break;
+            }
+        }
+
+        if (startIndex !== -1) {
+            words.splice(startIndex, words.length - startIndex, ...suggestionWords);
+        } else {
+            words.push(suggestion);
+        }
+
+        setInput(words.join(' '));
+        setSuggestions([]);
     };
 
     const capitalizeWords = (string: string) => {
@@ -226,6 +285,11 @@ const CypherTool: React.FC = () => {
         }
     };
 
+    const toggleAutocomplete = () => {
+        setAutocompleteEnabled(prev => !prev);
+        setSuggestions([]);
+    };
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
             <Head>
@@ -241,14 +305,36 @@ const CypherTool: React.FC = () => {
 
                 <div className="flex flex-col md:flex-row w-full max-w-7xl bg-white p-6 rounded-md shadow-md space-y-4 md:space-y-0 md:space-x-4">
                     <div className="flex flex-col items-center w-full md:w-1/2 p-4">
-                        <form onSubmit={handleSubmit} className="w-full">
-                            <input
-                                type="text"
-                                placeholder="Enter your question..."
-                                className="p-4 w-full text-gray-700 border rounded-md focus:outline-none focus:ring focus:border-blue-300 transition duration-300 ease-in-out"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                            />
+                        <form onSubmit={handleSubmit} className="w-full relative">
+                            <div className="relative flex items-center w-full">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your question..."
+                                    className="p-4 w-full text-gray-700 border rounded-md focus:outline-none focus:ring focus:border-blue-300 transition duration-300 ease-in-out pr-16"
+                                    value={input}
+                                    onChange={handleInputChange}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={toggleAutocomplete}
+                                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-md ${autocompleteEnabled ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-700'} transition duration-300 ease-in-out`}
+                                >
+                                    {autocompleteEnabled ? <AiOutlineUp /> : <AiOutlineDown />}
+                                </button>
+                            </div>
+                            {autocompleteEnabled && suggestions.length > 0 && (
+                                <ul className="absolute left-0 right-0 mt-2 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
+                                    {suggestions.map((suggestion, index) => (
+                                        <li
+                                            key={index}
+                                            className="p-2 cursor-pointer hover:bg-gray-100"
+                                            onClick={() => handleSuggestionClick(suggestion.label)}
+                                        >
+                                            {suggestion.label}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                             <button
                                 type="submit"
                                 className="mt-4 w-full p-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 ease-in-out"

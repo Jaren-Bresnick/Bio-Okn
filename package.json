@@ -20,7 +20,7 @@
     "vis-network": "^9.1.9"
   },
   "devDependencies": {
-    "@types/cytoscape": "^3.21.2",
+    "@types/cytoscape": "^3.21.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

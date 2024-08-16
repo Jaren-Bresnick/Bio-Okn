@@ -99,6 +99,25 @@ async def get_cypher_querying(request: Request):
         logging.error(f"An error occurred: {e}")
         return JSONResponse(content={'error': str(e)}, status_code=500)
     
+@app.get("/nodes")
+async def get_nodes(query: str):
+    try:
+        with driver.session() as session:
+            result = session.run(
+                """
+                MATCH (n)
+                WHERE toLower(n.NAME) CONTAINS toLower($query)
+                RETURN n.NAME AS name
+                LIMIT 10
+                """, {"query": query}
+            )
+            nodes = [{"label": record["name"]} for record in result]
+        return JSONResponse(content=nodes)
+    except Exception as e:
+        logging.error(f"An error occurred while fetching nodes: {e}")
+        return JSONResponse(content={'error': str(e)}, status_code=500)
+    
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port=8000)
