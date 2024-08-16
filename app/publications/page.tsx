@@ -4,20 +4,12 @@ import Navbar from '../components/navbar';
 
 const publications = [
   {
-    title: "Biomedical Knowledge Graphs and Social Determinants of Health",
-    authors: "A. Name, B. Name, C. Name",
-    journal: "Journal of Biomedical Informatics",
+    title: "Deontological Ethics in AI",
+    authors: "Thomas M. Powers",
+    journal: "International Association for Computing and Philosophy (IACAP)",
     year: 2024,
-    link: "https://example.com/publication1",  // Add the actual link to the publication
+    link: "https://example.com/publication",  // Add the actual link to the publication
   },
-  {
-    title: "Continual Learning for Biomedical Knowledge Graphs",
-    authors: "D. Name, E. Name",
-    journal: "IEEE Transactions on Biomedical Engineering",
-    year: 2023,
-    link: "https://example.com/publication2",  // Add the actual link to the publication
-  },
-  // Add more publications here
 ];
 
 const Publications: NextPage = () => {
@@ -28,7 +20,6 @@ const Publications: NextPage = () => {
         <meta name="description" content="Browse our research publications." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
 
       <main className="flex-1">
         <section id="publications" className="text-center py-20 bg-white">
@@ -51,7 +42,6 @@ const Publications: NextPage = () => {
           </div>
         </section>
       </main>
-
     </div>
   );
 };
