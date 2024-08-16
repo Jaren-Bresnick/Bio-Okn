@@ -20,6 +20,7 @@ const About: NextPage = () => {
             Our research explores the intricate interplay between biological, environmental, and social factors in determining health outcomes. We aim to bridge gaps in traditional biomedical research by integrating clinical, molecular, and social determinants of health (SDoH) data into comprehensive knowledge graphs. These efforts span multiple projects, each focused on addressing specific challenges within the healthcare domain, with the overarching goal of improving both individual and population-level health outcomes.
           </p>
 
+
           {/* Integrating Biomedical and SDoH Knowledge */}
           <div className="bg-gray-100 p-6 rounded-lg shadow-lg mb-8">
             <h3 className="text-3xl font-bold text-gray-800 mb-4">Integrating Biomedical and SDoH Knowledge</h3>
@@ -104,9 +105,10 @@ const About: NextPage = () => {
             <p className="text-gray-700 leading-relaxed mb-4">
               While synthetic data offers numerous advantages, it also comes with certain risks and ethical considerations. For instance, combining VA synthetic data with external data requires explicit permission under the VA Synthetic Data License Agreement. To mitigate this risk, we plan to seek approval from VA legal counsel and adhere to strict transparency and safety protocols.
             </p>
-            <p className="text-gray-700 leading-relaxed">
-              Our commitment to ethical research is further demonstrated through our use of literature reviews and the sharing of resources on data transparency. Key references guiding our approach include Gebru et al.'s "Datasheets for Datasets" and recent discussions on data and model transparency at NIH workshops.
+            <p className="text-gray-700 leading-relaxed mb-4">
+              Our commitment to ethical research is further demonstrated through our use of literature reviews and the sharing of resources on data transparency. Key references guiding our approach include Gebru et al.&apos;s &quot;Datasheets for Datasets&quot; and recent discussions on data and model transparency at NIH workshops.
             </p>
+
           </div>
 
           {/* Use Cases of the Knowledge Graph */}
