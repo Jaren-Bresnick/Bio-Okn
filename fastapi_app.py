@@ -23,53 +23,93 @@ neo4j_password = "Sdohgraph!"
 
 driver = GraphDatabase.driver(neo4j_url, auth=(neo4j_username, neo4j_password))
 
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from neo4j import GraphDatabase
+
+app = FastAPI()
+
+# CORS setup
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Neo4j setup
+neo4j_url = "bolt://localhost:7687"
+neo4j_username = "neo4j"
+neo4j_password = "Sdohgraph!"
+
+driver = GraphDatabase.driver(neo4j_url, auth=(neo4j_username, neo4j_password))
+
+# Load semtypes.txt into a dictionary
+semtypes_dict = {}
+with open("semtypes.txt") as file:
+    for line in file:
+        parts = line.strip().split('|')
+        if len(parts) == 3:
+            semtypes_dict[parts[0]] = parts[2]  
+
 @app.post("/cypher-query")
 async def get_cypher_query(request: Request):
     data = await request.json()
-    
-    if not data or 'query' not in data:
-        return JSONResponse(content={'error': 'Invalid request'}, status_code=400)
+    query = data.get('query', '')
 
-    query = data['query']
     with driver.session() as session:
         result = session.run(query)
         nodes = {}
         edges = []
+        semtypes = {}
+
         for record in result:
             n = record['n']
             m = record['m']
             relationships = record['r']
+
             n_id = str(n.id)
             m_id = str(m.id)
-            if n_id not in nodes:
-                nodes[n_id] = {"data": {"id": n_id, "label": n.get('NAME', 'Unknown')}}
-            if m_id not in nodes:
-                nodes[m_id] = {"data": {"id": m_id, "label": m.get('NAME', 'Unknown')}}
+            n_semtype = n.get('SEMTYPE', 'Unknown')
+            m_semtype = m.get('SEMTYPE', 'Unknown')
 
-            if isinstance(relationships, list):  # Handle list of relationships
+            if n_id not in nodes:
+                nodes[n_id] = {
+                    "data": {
+                        "id": n_id,
+                        "label": n.get('NAME', 'Unknown'),
+                        "semtype": n_semtype
+                    }
+                }
+                # Extract parts and map them
+                for part in n_semtype.split('_'):
+                    semtypes[part] = semtypes_dict.get(part, part)
+
+            if m_id not in nodes:
+                nodes[m_id] = {
+                    "data": {
+                        "id": m_id,
+                        "label": m.get('NAME', 'Unknown'),
+                        "semtype": m_semtype
+                    }
+                }
+                # Extract parts and map them
+                for part in m_semtype.split('_'):
+                    semtypes[part] = semtypes_dict.get(part, part)
+
+            # Handle relationships
+            if isinstance(relationships, list):
                 for rel in relationships:
-                    if isinstance(rel, tuple):
-                        relationship_type = rel[1]
-                        source_id = str(rel[0].id)
-                        target_id = str(rel[2].id)
-                    else:
-                        relationship_type = rel.type
-                        source_id = str(rel.start_node.id)
-                        target_id = str(rel.end_node.id)
-                    edges.append({"data": {"source": source_id, "target": target_id, "label": relationship_type}})
-            else:  # Handle single relationship
-                if isinstance(relationships, tuple):
-                    relationship_type = relationships[1]
-                    source_id = str(relationships[0].id)
-                    target_id = str(relationships[2].id)
-                else:
-                    relationship_type = relationships.type
-                    source_id = str(relationships.start_node.id)
-                    target_id = str(relationships.end_node.id)
-                edges.append({"data": {"source": source_id, "target": target_id, "label": relationship_type}})
-                
-        return JSONResponse(content={"nodes": list(nodes.values()), "edges": edges})
-    
+                    edges.append({"data": {"source": n_id, "target": m_id, "label": rel.type}})
+            else:
+                edges.append({"data": {"source": n_id, "target": m_id, "label": relationships.type}})
+
+        return JSONResponse(content={"nodes": list(nodes.values()), "edges": edges, "semtype_labels": semtypes})
+
+
+
     
 @app.post("/cypher-querying")
 async def get_cypher_querying(request: Request):

@@ -19,6 +19,9 @@ const CypherTool: React.FC = () => {
     const [cyInstance, setCyInstance] = useState<any>(null);
     const [modalCyInstance, setModalCyInstance] = useState<any>(null);
     const [autocompleteEnabled, setAutocompleteEnabled] = useState(true);
+    const [semtypeLabels, setSemtypeLabels] = useState<Record<string, string>>({});
+    const [selectedSemtypes, setSelectedSemtypes] = useState<Record<string, boolean>>({});
+    const [clickedNodeInfo, setClickedNodeInfo] = useState<{label: string, semtype: string, x: number, y: number} | null>(null);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -87,7 +90,6 @@ const CypherTool: React.FC = () => {
 
         let startIndex = -1;
 
-        // Find the index where the suggestion should replace
         for (let i = 0; i < lowerCaseWords.length; i++) {
             if (lowerCaseSuggestion.startsWith(lowerCaseWords[i])) {
                 startIndex = i;
@@ -254,17 +256,98 @@ const CypherTool: React.FC = () => {
                 .then((response) => response.json())
                 .then((data) => {
                     initializeGraph(modalCyRef.current, data, true);
+
+                    const uniqueSemtypes: Record<string, string> = {};
+
+                    Object.entries(data.semtype_labels).forEach(([code, label]) => {
+                        const parts = code.split('_');
+                        parts.forEach((part) => {
+                            if (!uniqueSemtypes[part]) {
+                                uniqueSemtypes[part] = label as string;
+                            }
+                        });
+                    });
+
+                    setSemtypeLabels(uniqueSemtypes);
+
+                    const initialSelectedSemtypes: Record<string, boolean> = {};
+                    Object.keys(uniqueSemtypes).forEach((key) => {
+                        initialSelectedSemtypes[key] = true;
+                    });
+                    setSelectedSemtypes(initialSelectedSemtypes);
                 })
                 .catch((error) => console.error('Error fetching nodes:', error));
         }
     }, [isModalOpen, query]);
 
+    useEffect(() => {
+        if (modalCyInstance) {
+            modalCyInstance.nodes().forEach((node: any) => {
+                const semtypes = node.data('semtype').split('_');
+                const isVisible = semtypes.some((semtype: string) => selectedSemtypes[semtype]);
+                if (isVisible) {
+                    node.style('display', 'element');
+                } else {
+                    node.style('display', 'none');
+
+                    // If the node being hidden is the one currently selected, hide the info box
+                    if (clickedNodeInfo && clickedNodeInfo.label === node.data('label')) {
+                        setClickedNodeInfo(null);
+                    }
+                }
+            });
+        }
+    }, [selectedSemtypes, modalCyInstance, clickedNodeInfo]);
+
+    useEffect(() => {
+        if (modalCyInstance) {
+            // Add event listener for node clicks
+            modalCyInstance.on('tap', 'node', (event: any) => {
+                const node = event.target;
+                const label = node.data('label');
+                const semtype = node.data('semtype');
+                const position = node.renderedPosition();
+
+                setClickedNodeInfo({
+                    label,
+                    semtype,
+                    x: position.x,
+                    y: position.y,
+                });
+            });
+
+            // Add event listener for background clicks
+            modalCyInstance.on('tap', (event: any) => {
+                if (event.target === modalCyInstance) {
+                    // Clicked on background, reset the node info
+                    setClickedNodeInfo(null);
+                }
+            });
+
+            return () => {
+                modalCyInstance.removeListener('tap', 'node');
+                modalCyInstance.removeListener('tap');
+            };
+        }
+    }, [modalCyInstance]);
+
+    const handleSemtypeChange = (semtype: string) => {
+        setSelectedSemtypes((prevState) => ({
+            ...prevState,
+            [semtype]: !prevState[semtype],
+        }));
+    };
+
     const highlightNode = (nodeId: string) => {
         if (cyInstance) {
-            cyInstance.nodes().removeClass('highlighted');
             const node = cyInstance.getElementById(nodeId);
             if (node) {
-                node.addClass('highlighted');
+                if (node.hasClass('highlighted')) {
+                    node.removeClass('highlighted');
+                } else {
+                    cyInstance.nodes().removeClass('highlighted');
+                    node.addClass('highlighted');
+                }
             }
         }
     };
@@ -288,6 +371,11 @@ const CypherTool: React.FC = () => {
     const toggleAutocomplete = () => {
         setAutocompleteEnabled(prev => !prev);
         setSuggestions([]);
+    };
+
+    const handleExpandClick = () => {
+        setIsModalOpen(true);
+        setClickedNodeInfo(null); // Reset node info when the modal expands
     };
 
     return (
@@ -387,7 +475,7 @@ const CypherTool: React.FC = () => {
                             )}
                             <div ref={cyRef} className="w-full h-full" />
                             <button
-                                onClick={() => setIsModalOpen(true)}
+                                onClick={handleExpandClick}
                                 className="absolute top-2 right-2 p-2 bg-blue-600 text-white rounded-full shadow-md hover:bg-blue-700 transition duration-300 ease-in-out z-10"
                             >
                                 <FaExpand />
@@ -403,16 +491,35 @@ const CypherTool: React.FC = () => {
                         <div className="w-1/4 h-full overflow-auto bg-gray-200 rounded-l-lg p-4">
                             <h3 className="text-xl font-bold mb-4">Nodes</h3>
                             <ul>
-                                {nodes.map((node, index) => (
-                                    <li
-                                        key={index}
-                                        className="mb-2 cursor-pointer hover:underline"
-                                        onClick={() => highlightNode(node.id)}
-                                    >
-                                        {node.label}
-                                    </li>
-                                ))}
+                                {nodes
+                                    .filter((node) => node.semtype.split('_').some((part: string) => selectedSemtypes[part]))
+                                    .sort((a, b) => a.label.localeCompare(b.label))
+                                    .map((node, index) => (
+                                        <li
+                                            key={index}
+                                            className="mb-2 cursor-pointer hover:underline"
+                                            onClick={() => highlightNode(node.id)}
+                                        >
+                                            {node.label}
+                                        </li>
+                                    ))}
                             </ul>
+                            <h3 className="text-xl font-bold mt-6 mb-4">SEMTYPE Labels</h3>
+                                <ul>
+                                    {Object.entries(semtypeLabels)
+                                        .sort(([a], [b]) => a.localeCompare(b))
+                                        .map(([code, label], index) => (
+                                            <li key={index} className="mb-2 flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedSemtypes[code]}
+                                                    onChange={() => handleSemtypeChange(code)}
+                                                    className="mr-2"
+                                                />
+                                                <span>{`${code}: ${label}`}</span>
+                                            </li>
+                                        ))}
+                                </ul>
                         </div>
                         <div className="w-3/4 h-full relative">
                             <div className="absolute top-2 right-2 z-10">
@@ -430,6 +537,34 @@ const CypherTool: React.FC = () => {
                             >
                                 <FiDownload />
                             </button>
+
+                            {clickedNodeInfo && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: clickedNodeInfo.y + 10,
+                                        left: clickedNodeInfo.x + 10,
+                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                        border: '1px solid #ddd',
+                                        padding: '8px',
+                                        borderRadius: '4px',
+                                        zIndex: 1000,
+                                        pointerEvents: 'none',
+                                    }}
+                                >
+                                    <p><strong>Name:</strong> {clickedNodeInfo.label}</p>
+                                    <p>
+                                        <strong>Semtype:</strong> {Array.from(new Set(
+                                            clickedNodeInfo.semtype
+                                                .split('_') // Split the semtype into parts
+                                                .map(part => semtypeLabels[part] || part) // Map each part to its human-readable form using semtypeLabels
+                                        ))
+                                        .join(', ')} {/* Join them as a unique string */}
+                                    </p>
+                                </div>
+                            )}
+
+
                         </div>
                     </div>
                 </div>
